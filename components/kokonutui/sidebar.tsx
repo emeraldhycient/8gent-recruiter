@@ -56,41 +56,54 @@ export default function Sidebar() {
         type="button"
         className="lg:hidden fixed top-4 left-4 z-[70] p-2 rounded-lg bg-white dark:bg-[#0F0F12] shadow-md"
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        aria-label="Toggle navigation"
       >
         <Menu className="h-5 w-5 text-gray-600 dark:text-gray-300" />
       </button>
       <nav
         className={`
-                fixed inset-y-0 left-0 z-[70] w-64 bg-white dark:bg-[#0F0F12] transform transition-transform duration-200 ease-in-out
-                lg:translate-x-0 lg:static lg:w-64 border-r border-gray-200 dark:border-[#1F1F23]
-                ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
-            `}
+          fixed inset-y-0 left-0 z-[70] w-64 bg-white dark:bg-[#0F0F12] transform transition-transform duration-200 ease-in-out
+          lg:translate-x-0 lg:static lg:w-64 border-r border-gray-200 dark:border-[#1F1F23]
+          ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
+        `}
+        aria-label="Primary"
       >
         <div className="h-full flex flex-col">
+          {/* Brand header with original logo + new name/badge */}
           <Link
-            href="https://kokonutui.com/"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/"
             className="h-16 px-6 flex items-center border-b border-gray-200 dark:border-[#1F1F23]"
+            onClick={handleNavigation}
+            aria-label="8gent Recruiter Home"
           >
             <div className="flex items-center gap-3">
+              {/* Keep the original icon/logo in light/dark variants */}
               <Image
                 src="https://kokonutui.com/logo.svg"
-                alt="Acme"
+                alt="Brand logo"
                 width={32}
                 height={32}
                 className="flex-shrink-0 hidden dark:block"
+                priority
               />
               <Image
                 src="https://kokonutui.com/logo-black.svg"
-                alt="Acme"
+                alt="Brand logo"
                 width={32}
                 height={32}
                 className="flex-shrink-0 block dark:hidden"
+                priority
               />
-              <span className="text-lg font-semibold hover:cursor-pointer text-gray-900 dark:text-white">
-                KokonutUI
-              </span>
+              {/* Updated brand text and badge */}
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-semibold text-gray-900 dark:text-white">8gent</span>
+                <span
+                  className="text-[10px] leading-none uppercase tracking-wide rounded-full border px-2 py-0.5 text-gray-600 bg-gray-50 border-gray-200 dark:text-gray-300 dark:bg-[#141418] dark:border-[#1F1F23]"
+                  aria-label="Product"
+                >
+                  recruiter
+                </span>
+              </div>
             </div>
           </Link>
 
@@ -172,6 +185,7 @@ export default function Sidebar() {
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-[65] lg:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
+          aria-hidden="true"
         />
       )}
     </>

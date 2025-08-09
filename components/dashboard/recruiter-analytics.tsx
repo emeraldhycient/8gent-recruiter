@@ -2,19 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-} from "recharts"
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, XAxis, YAxis } from "recharts"
 
 type KPIs = {
   totalJobs: number
@@ -66,23 +54,21 @@ export default function RecruiterAnalytics({ kpis, charts }: { kpis: KPIs; chart
               config={{
                 count: { label: "Applicants", color: "hsl(var(--chart-1))" },
               }}
-              className="h-full"
+              className="w-full h-full"
             >
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={charts.applicantsTrend} margin={{ left: 12, right: 12 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" tickFormatter={(d) => d.slice(5)} />
-                  <YAxis allowDecimals={false} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Area
-                    dataKey="count"
-                    type="monotone"
-                    stroke="var(--color-count)"
-                    fill="var(--color-count)"
-                    fillOpacity={0.2}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              <AreaChart data={charts.applicantsTrend} margin={{ left: 12, right: 12 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" tickFormatter={(d) => d.slice(5)} />
+                <YAxis allowDecimals={false} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Area
+                  dataKey="count"
+                  type="monotone"
+                  stroke="var(--color-count)"
+                  fill="var(--color-count)"
+                  fillOpacity={0.2}
+                />
+              </AreaChart>
             </ChartContainer>
           </CardContent>
         </Card>
@@ -112,17 +98,15 @@ export default function RecruiterAnalytics({ kpis, charts }: { kpis: KPIs; chart
               config={{
                 value: { label: "Candidates", color: "hsl(var(--chart-2))" },
               }}
-              className="h-full"
+              className="w-full h-full"
             >
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={charts.pipeline} margin={{ left: 12, right: 12 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="stage" tickFormatter={(s) => s.slice(0, 8)} />
-                  <YAxis allowDecimals={false} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="value" fill="var(--color-value)" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              <BarChart data={charts.pipeline} margin={{ left: 12, right: 12 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="stage" tickFormatter={(s) => s.slice(0, 8)} />
+                <YAxis allowDecimals={false} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Bar dataKey="value" fill="var(--color-value)" radius={[4, 4, 0, 0]} />
+              </BarChart>
             </ChartContainer>
           </CardContent>
         </Card>
@@ -137,18 +121,16 @@ export default function RecruiterAnalytics({ kpis, charts }: { kpis: KPIs; chart
               config={{
                 value: { label: "Candidates by Source", color: "hsl(var(--chart-4))" },
               }}
-              className="h-full"
+              className="w-full h-full"
             >
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={charts.sources} dataKey="value" nameKey="name" innerRadius={48} outerRadius={80}>
-                    {charts.sources.map((_, i) => (
-                      <Cell key={i} fill={colors[i % colors.length]} />
-                    ))}
-                  </Pie>
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                </PieChart>
-              </ResponsiveContainer>
+              <PieChart>
+                <Pie data={charts.sources} dataKey="value" nameKey="name" innerRadius={48} outerRadius={80}>
+                  {charts.sources.map((_, i) => (
+                    <Cell key={i} fill={colors[i % colors.length]} />
+                  ))}
+                </Pie>
+                <ChartTooltip content={<ChartTooltipContent />} />
+              </PieChart>
             </ChartContainer>
           </CardContent>
         </Card>
@@ -163,17 +145,15 @@ export default function RecruiterAnalytics({ kpis, charts }: { kpis: KPIs; chart
               config={{
                 jobs: { label: "Jobs", color: "hsl(var(--chart-3))" },
               }}
-              className="h-full"
+              className="w-full h-full"
             >
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={charts.dept} layout="vertical" margin={{ left: 12, right: 12 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" allowDecimals={false} />
-                  <YAxis type="category" dataKey="department" width={100} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="jobs" fill="var(--color-jobs)" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              <BarChart data={charts.dept} layout="vertical" margin={{ left: 12, right: 12 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" allowDecimals={false} />
+                <YAxis type="category" dataKey="department" width={100} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Bar dataKey="jobs" fill="var(--color-jobs)" radius={[0, 4, 4, 0]} />
+              </BarChart>
             </ChartContainer>
           </CardContent>
         </Card>
