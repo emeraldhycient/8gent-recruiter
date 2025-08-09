@@ -105,6 +105,9 @@ export interface Meeting {
   interviewer: string
   locationOrUrl?: string
   notes?: string
+  // Optional multi-round support
+  round?: number // e.g., 1, 2, 3 for multi-level interviews
+  seriesId?: string // optional grouping key to link rounds in a series
   createdAt: string
   updatedAt: string
 }

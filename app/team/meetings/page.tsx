@@ -85,6 +85,21 @@ export default async function MeetingsPage() {
                 <Input id="locationOrUrl" name="locationOrUrl" placeholder="Zoom/Meet link or Office" />
               </div>
 
+              {/* Optional multi-round fields */}
+              <div>
+                <label htmlFor="round" className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
+                  Round (optional)
+                </label>
+                <Input id="round" name="round" type="number" min={1} placeholder="e.g., 1 or 2" />
+              </div>
+
+              <div>
+                <label htmlFor="seriesId" className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
+                  Series ID (optional)
+                </label>
+                <Input id="seriesId" name="seriesId" placeholder="e.g., series_candidate_123" />
+              </div>
+
               <div className="xl:col-span-3">
                 <label htmlFor="notes" className="block text-sm text-gray-700 dark:text-gray-300 mb-1">
                   Notes

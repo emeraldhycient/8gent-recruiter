@@ -311,7 +311,8 @@ function seed(): DB {
     },
   ]
 
-  // Seed meetings
+  // Seed meetings (with optional multi-round for technical)
+  const seriesTechApp3 = "series_app3_technical"
   const meetings: Meeting[] = [
     {
       id: "meet_1",
@@ -324,8 +325,26 @@ function seed(): DB {
       interviewer: "Dana Kim",
       locationOrUrl: "Zoom https://zoom.us/j/123456",
       notes: "Focus on React performance and TS.",
+      round: 1,
+      seriesId: seriesTechApp3,
       createdAt: iso(new Date(now.getTime() - 1000 * 60 * 35)),
       updatedAt: iso(new Date(now.getTime() - 1000 * 60 * 35)),
+    },
+    {
+      id: "meet_4",
+      applicantId: "app_3",
+      jobId: "job_1",
+      type: "technical",
+      status: "scheduled",
+      scheduledAt: iso(new Date(now.getTime() + 1000 * 60 * 60 * 48)), // +2 days
+      durationMins: 60,
+      interviewer: "Panel",
+      locationOrUrl: "Google Meet",
+      notes: "Systems + architecture deep dive.",
+      round: 2,
+      seriesId: seriesTechApp3,
+      createdAt: iso(new Date(now.getTime() - 1000 * 60 * 20)),
+      updatedAt: iso(new Date(now.getTime() - 1000 * 60 * 20)),
     },
     {
       id: "meet_2",
@@ -347,7 +366,7 @@ function seed(): DB {
       jobId: "job_3",
       type: "offer",
       status: "scheduled",
-      scheduledAt: iso(new Date(now.getTime() + 1000 * 60 * 60 * 48)),
+      scheduledAt: iso(new Date(now.getTime() + 1000 * 60 * 60 * 72)),
       durationMins: 45,
       interviewer: "You",
       locationOrUrl: "Google Meet",
@@ -597,6 +616,8 @@ export async function createMeeting(input: {
   interviewer: string
   locationOrUrl?: string
   notes?: string
+  round?: number
+  seriesId?: string
 }): Promise<Meeting | undefined> {
   const state = db()
   const applicant = state.applicants.find((a) => a.id === input.applicantId)
@@ -613,6 +634,8 @@ export async function createMeeting(input: {
     interviewer: input.interviewer,
     locationOrUrl: input.locationOrUrl,
     notes: input.notes,
+    round: input.round,
+    seriesId: input.seriesId,
     createdAt: nowIso,
     updatedAt: nowIso,
   }

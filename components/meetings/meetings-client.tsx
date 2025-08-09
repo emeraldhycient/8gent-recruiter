@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CalendarIcon, ChevronLeft, ChevronRight, Clock, MapPin, User } from "lucide-react"
+import { CalendarIcon, ChevronLeft, ChevronRight, Clock, MapPin, User, Tag } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -16,7 +16,12 @@ import {
 } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
 import type { Meeting, MeetingStatus, MeetingType, Applicant, Job } from "@/lib/types"
-import { actionCancelMeeting, actionCompleteMeeting, actionRescheduleMeeting } from "@/app/actions/meetings"
+import {
+  actionCancelMeeting,
+  actionCompleteMeeting,
+  actionRescheduleMeeting,
+  actionCreateNextRound,
+} from "@/app/actions/meetings"
 
 type Props = {
   meetings?: Meeting[]
@@ -41,6 +46,11 @@ const STATUS_BADGE: Record<MeetingStatus, string> = {
   scheduled: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
   completed: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300",
   canceled: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+}
+
+function labelMeeting(m: Meeting) {
+  const base = TYPE_LABELS[m.type]
+  return m.round ? `${base} R${m.round}` : base
 }
 
 function toLocalDatetimeValue(iso: string) {
@@ -320,9 +330,9 @@ export default function MeetingsClient({ meetings = [], applicants = [], jobs = 
                                     ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
                                     : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
                               }`}
-                              aria-label={`View ${TYPE_LABELS[m.type]} with ${a?.name ?? "candidate"}`}
+                              aria-label={`View ${labelMeeting(m)} with ${a?.name ?? "candidate"}`}
                             >
-                              {TYPE_LABELS[m.type]} • {a?.name || "—"}
+                              {labelMeeting(m)} • {a?.name || "—"}
                             </button>
                           )
                         })}
@@ -361,7 +371,7 @@ export default function MeetingsClient({ meetings = [], applicants = [], jobs = 
                         <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${STATUS_BADGE[m.status]}`}>
                           {STATUS_NAME[m.status]}
                         </span>
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">{TYPE_LABELS[m.type]}</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">{labelMeeting(m)}</div>
                         <div className="ml-auto text-sm text-gray-700 dark:text-gray-300">
                           {formatDateTime(m.scheduledAt)}
                         </div>
@@ -384,6 +394,12 @@ export default function MeetingsClient({ meetings = [], applicants = [], jobs = 
                         Job: <span className="text-gray-900 dark:text-gray-100">{j?.title || "—"}</span> • Interviewer:{" "}
                         <span className="text-gray-900 dark:text-gray-100">{m.interviewer}</span>
                       </div>
+                      {m.seriesId && (
+                        <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                          <Tag className="h-3.5 w-3.5" />
+                          Series: <span className="text-gray-900 dark:text-gray-100">{m.seriesId}</span>
+                        </div>
+                      )}
                       {m.notes && <div className="text-xs text-gray-600 dark:text-gray-400">Notes: {m.notes}</div>}
 
                       <div className="flex flex-wrap gap-2">
@@ -416,6 +432,7 @@ export default function MeetingsClient({ meetings = [], applicants = [], jobs = 
                     <th className="px-4 py-2">Duration</th>
                     <th className="px-4 py-2">Interviewer</th>
                     <th className="px-4 py-2">Status</th>
+                    <th className="px-4 py-2">Series</th>
                     <th className="px-4 py-2">Actions</th>
                   </tr>
                 </thead>
@@ -427,7 +444,7 @@ export default function MeetingsClient({ meetings = [], applicants = [], jobs = 
                       <tr key={m.id} className="border-b border-gray-100 dark:border-[#1F1F23] align-top">
                         <td className="px-4 py-2 text-gray-900 dark:text-white">{a?.name || "—"}</td>
                         <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{j?.title || "—"}</td>
-                        <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{TYPE_LABELS[m.type]}</td>
+                        <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{labelMeeting(m)}</td>
                         <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{formatDateTime(m.scheduledAt)}</td>
                         <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{m.durationMins}m</td>
                         <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{m.interviewer}</td>
@@ -436,6 +453,7 @@ export default function MeetingsClient({ meetings = [], applicants = [], jobs = 
                             {m.status}
                           </span>
                         </td>
+                        <td className="px-4 py-2 text-gray-700 dark:text-gray-300">{m.seriesId || "—"}</td>
                         <td className="px-4 py-2">
                           <div className="flex flex-wrap gap-2">
                             <Button size="sm" type="button" onClick={() => openMeeting(m)}>
@@ -448,7 +466,7 @@ export default function MeetingsClient({ meetings = [], applicants = [], jobs = 
                   })}
                   {filtered.length === 0 && (
                     <tr>
-                      <td colSpan={8} className="px-4 py-8 text-center text-gray-600 dark:text-gray-400">
+                      <td colSpan={9} className="px-4 py-8 text-center text-gray-600 dark:text-gray-400">
                         No meetings found for current filters.
                       </td>
                     </tr>
@@ -462,7 +480,7 @@ export default function MeetingsClient({ meetings = [], applicants = [], jobs = 
 
       {/* Details Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[620px]">
+        <DialogContent className="sm:max-w-[680px]">
           <DialogHeader>
             <DialogTitle>Meeting details</DialogTitle>
             <DialogDescription>Review details and take actions.</DialogDescription>
@@ -474,8 +492,9 @@ export default function MeetingsClient({ meetings = [], applicants = [], jobs = 
                 <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${STATUS_BADGE[active.status]}`}>
                   {STATUS_NAME[active.status]}
                 </span>
-                <div className="text-sm font-medium">
-                  {TYPE_LABELS[active.type]} • {formatDateTime(active.scheduledAt)}
+                <div className="text-sm font-medium">{labelMeeting(active)}</div>
+                <div className="ml-auto text-sm text-gray-700 dark:text-gray-300">
+                  {formatDateTime(active.scheduledAt)}
                 </div>
               </div>
 
@@ -509,6 +528,13 @@ export default function MeetingsClient({ meetings = [], applicants = [], jobs = 
                   <span>Interviewer:</span>
                   <span className="font-medium text-gray-900 dark:text-gray-100">{active.interviewer}</span>
                 </div>
+                {active.seriesId && (
+                  <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                    <Tag className="h-4 w-4" />
+                    <span>Series:</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{active.seriesId}</span>
+                  </div>
+                )}
               </div>
 
               {active.notes && (
@@ -519,6 +545,7 @@ export default function MeetingsClient({ meetings = [], applicants = [], jobs = 
 
               <Separator />
 
+              {/* Reschedule */}
               <div className="space-y-2">
                 <div className="text-sm font-medium">Reschedule</div>
                 <form action={actionRescheduleMeeting} className="flex flex-wrap items-center gap-2">
@@ -543,6 +570,56 @@ export default function MeetingsClient({ meetings = [], applicants = [], jobs = 
                     Save
                   </Button>
                 </form>
+              </div>
+
+              {/* Create next round (optional multi-round workflow) */}
+              <div className="space-y-2">
+                <div className="text-sm font-medium">Add next round</div>
+                <form action={actionCreateNextRound} className="grid gap-2 md:grid-cols-2">
+                  <input type="hidden" name="applicantId" value={active.applicantId} />
+                  <input type="hidden" name="type" value={active.type} />
+                  <input type="hidden" name="currentRound" value={active.round ?? 1} />
+                  <input type="hidden" name="seriesId" value={active.seriesId ?? ""} />
+                  <div className="md:col-span-2">
+                    <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1" htmlFor="scheduledAtNext">
+                      When
+                    </label>
+                    <Input id="scheduledAtNext" name="scheduledAt" type="datetime-local" required />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1" htmlFor="durationNext">
+                      Duration (mins)
+                    </label>
+                    <Input id="durationNext" name="durationMins" type="number" min={15} step={15} defaultValue={60} />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1" htmlFor="interviewerNext">
+                      Interviewer
+                    </label>
+                    <Input id="interviewerNext" name="interviewer" defaultValue={active.interviewer} required />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1" htmlFor="locationNext">
+                      Location or Link
+                    </label>
+                    <Input id="locationNext" name="locationOrUrl" placeholder="Zoom/Meet link or Office" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1" htmlFor="notesNext">
+                      Notes
+                    </label>
+                    <Input id="notesNext" name="notes" placeholder="Optional round-specific notes" />
+                  </div>
+                  <div className="md:col-span-2 flex justify-end">
+                    <Button size="sm" type="submit">
+                      Create next round
+                    </Button>
+                  </div>
+                </form>
+                <div className="text-xs text-gray-600 dark:text-gray-400">
+                  Next round will be created as R{(active.round ?? 1) + 1}
+                  {active.seriesId ? ` in series ${active.seriesId}.` : " with a new series ID if none exists."}
+                </div>
               </div>
             </div>
           )}
